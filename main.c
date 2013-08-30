@@ -3,8 +3,13 @@
 
 #include "SDL2/SDL.h"
 
+#define FRAME_LIMIT 60
+
+extern int main_menu (SDL_Renderer *renderer);
+
 int main (int argc, char**argv)
 {
+    /* Initialize things */
     if (SDL_Init (SDL_INIT_EVERYTHING) == -1)
     {
         fprintf (stderr, "Error: SDL_Init failed.\n");
@@ -23,12 +28,16 @@ int main (int argc, char**argv)
         return EXIT_FAILURE;
     }
 
-    SDL_SetRenderDrawColor (renderer, 255, 0, 0, 255); /* red */
+    /* Clear the screen */
+    SDL_SetRenderDrawColor (renderer, 0, 0, 0, 255);
     SDL_RenderClear (renderer);
     SDL_RenderPresent (renderer);
 
-
-    SDL_Delay (5000);
+    /* Enter the main menu */
+    while (main_menu (renderer))
+    {
+        /* When there are multiple options, a switch statement could live in here... */
+    }
 
     SDL_DestroyRenderer (renderer);
     SDL_DestroyWindow (window);
