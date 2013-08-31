@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_ttf.h"
 
 #define FRAME_LIMIT 60
 
@@ -16,10 +17,16 @@ int main (int argc, char**argv)
         return EXIT_FAILURE;
     }
 
+    if (TTF_Init () == -1)
+    {
+        fprintf (stderr, "Error: TTF_Init failed.\n");
+        return EXIT_FAILURE;
+    }
+
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
 
-    SDL_CreateWindowAndRenderer (640, 480, SDL_WINDOW_FULLSCREEN_DESKTOP,
+    SDL_CreateWindowAndRenderer (0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP,
                                  &window, &renderer);
 
     if (window == NULL || renderer == NULL)
@@ -41,6 +48,7 @@ int main (int argc, char**argv)
 
     SDL_DestroyRenderer (renderer);
     SDL_DestroyWindow (window);
+    TTF_Quit ();
     SDL_Quit ();
 
     return EXIT_SUCCESS;
