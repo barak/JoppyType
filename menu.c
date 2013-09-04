@@ -3,10 +3,15 @@
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_ttf.h"
+#include "SDL2/SDL_image.h"
 
 #include "timer.h"
 
 #define FRAME_LIMIT 60
+
+#include "shiftmap.h"
+#include "helpers.h"
+#include "text.h"
 
 /* main_menu
  *
@@ -17,36 +22,21 @@ int main_menu (SDL_Renderer *renderer)
 {
     SDL_Event event;
     Timer timer = Timer_new ();
+    char c = ' ';
 
-    TTF_Font *menu_font = TTF_OpenFont ("FreeMono.ttf", 20);
-    if (menu_font == NULL)
-    {
-        fprintf (stderr, "Error: TTF_OpenFont failed.\n");
-        exit (EXIT_FAILURE); /* TODO: A proper clean exit function */
-    }
+    SDL_Surface *characters_bright = loadImage ("./Media/Terminus_bold_bright_green.png");
+    SDL_Texture *characters_bright_texture = SDL_CreateTextureFromSurface (renderer, characters_bright);
+    SDL_FreeSurface (characters_bright);
 
-    SDL_Color text_colour = { 255, 255, 255, 0 };
+    SDL_Surface *characters_dim = loadImage ("./Media/Terminus_bold_dim_green.png");
+    SDL_Texture *characters_dim_texture = SDL_CreateTextureFromSurface (renderer, characters_dim);
+    SDL_FreeSurface (characters_dim);
 
-    SDL_Surface *text_surface = TTF_RenderText_Blended (menu_font, "Sample text.", text_colour);
-    if (text_surface == NULL)
-    {
-        fprintf (stderr, "Error: TTF_RenderText_Blended failed.\n");
-        exit (EXIT_FAILURE); /* TODO: A proper clean exit function */
-    }
-
-    SDL_Texture *text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-    if (text_texture == NULL)
-    {
-        fprintf (stderr, "Error: SDL_CreatTextureFromSurface failed.\n");
-        exit (EXIT_FAILURE); /* TODO: A proper clean exit function */
-    }
-
-    SDL_Rect dest_rect;
-    dest_rect.x = 320;
-    dest_rect.y = 240;
-    dest_rect.w = text_surface->w;
-    dest_rect.h = text_surface->h;
-    SDL_FreeSurface (text_surface);
+    Text text;
+    text.text = "Hello, World! Type to exit.";
+    text.index = 0;
+    text.pre_index = characters_dim_texture;
+    text.post_index =  characters_bright_texture;
 
 
     for (;;)
@@ -68,9 +58,22 @@ int main_menu (SDL_Renderer *renderer)
                     case SDLK_ESCAPE:
                         return 0;
                         break;
+                    default:
+                        if (isascii(event.key.keysym.sym))
+                        {
+                            c = ( event.key.keysym.mod & KMOD_SHIFT
+                                  ? shift_map[event.key.keysym.sym]
+                                  : event.key.keysym.sym ) & 0x7F;
+
+                            if (c == text.text[text.index])
+                                text.index++;
+                        }
                 }
             }
         }
+
+        if (text.index == strnlen (text.text, MAX_TEXT_LENGTH))
+            return 0;
 
         /* Logic */
 
@@ -78,8 +81,7 @@ int main_menu (SDL_Renderer *renderer)
         SDL_SetRenderDrawColor (renderer, 0, 0, 0, 255);
         SDL_RenderClear (renderer);
 
-
-        SDL_RenderCopy (renderer, text_texture, NULL, &dest_rect);
+        Text_render (renderer, &text);
 
         SDL_RenderPresent (renderer);
 
@@ -90,8 +92,8 @@ int main_menu (SDL_Renderer *renderer)
         }
     }
 
-    SDL_FreeTexture (text_texture);
-    TTF_CloseFont (menu_font);
+    SDL_FreeTexture (characters_bright_texture);
+    SDL_FreeTexture (characters_dim_texture);
 
     return 0;
 }
