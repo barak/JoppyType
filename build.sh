@@ -1,3 +1,3 @@
 #!/bin/sh
 
-gcc *.c -o Typing -lSDL2 -lSDL2_ttf -lSDL2_image
+gcc *.c -o Typing -lm -lSDL2 -lSDL2_image

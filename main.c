@@ -17,12 +17,6 @@ int main (int argc, char**argv)
         return EXIT_FAILURE;
     }
 
-    if (TTF_Init () == -1)
-    {
-        fprintf (stderr, "Error: TTF_Init failed.\n");
-        return EXIT_FAILURE;
-    }
-
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
 
@@ -48,7 +42,6 @@ int main (int argc, char**argv)
 
     SDL_DestroyRenderer (renderer);
     SDL_DestroyWindow (window);
-    TTF_Quit ();
     SDL_Quit ();
 
     return EXIT_SUCCESS;

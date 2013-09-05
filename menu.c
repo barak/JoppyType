@@ -9,7 +9,6 @@
 
 #define FRAME_LIMIT 60
 
-#include "shiftmap.h"
 #include "helpers.h"
 #include "text.h"
 
@@ -22,21 +21,34 @@ int main_menu (SDL_Renderer *renderer)
 {
     SDL_Event event;
     Timer timer = Timer_new ();
-    char c = ' ';
 
-    SDL_Surface *characters_bright = loadImage ("./Media/Terminus_bold_bright_green.png");
-    SDL_Texture *characters_bright_texture = SDL_CreateTextureFromSurface (renderer, characters_bright);
-    SDL_FreeSurface (characters_bright);
+    SDL_Surface *character_panels_surface = loadImage ("./Media/Terminus_bold_panels.png");
+    SDL_Texture *character_panels_texture = SDL_CreateTextureFromSurface (renderer, character_panels_surface);
+    SDL_FreeSurface (character_panels_surface);
 
     SDL_Surface *characters_dim = loadImage ("./Media/Terminus_bold_dim_green.png");
     SDL_Texture *characters_dim_texture = SDL_CreateTextureFromSurface (renderer, characters_dim);
     SDL_FreeSurface (characters_dim);
 
-    Text text;
-    text.text = "Hello, World! Type to exit.";
-    text.index = 0;
-    text.pre_index = characters_dim_texture;
-    text.post_index =  characters_bright_texture;
+    Text title = Text_new (renderer, "Welcome to JoppyType!");
+    title.post_index =  character_panels_texture;
+    title.x_position = 120;
+    title.y_position = 120;
+    title.animate = &Text_animate;
+
+    Text start = Text_new (renderer, "Start");
+    start.pre_index  =  characters_dim_texture;
+    start.post_index =  character_panels_texture;
+    start.x_position = 320;
+    start.y_position = 440;
+    start.animate = &Text_animate;
+
+    Text exit = Text_new (renderer, "Exit");
+    exit.pre_index  =  characters_dim_texture;
+    exit.post_index =  character_panels_texture;
+    exit.x_position = 320;
+    exit.y_position = 600;
+    exit.animate = &Text_animate;
 
 
     for (;;)
@@ -59,29 +71,26 @@ int main_menu (SDL_Renderer *renderer)
                         return 0;
                         break;
                     default:
-                        if (isascii(event.key.keysym.sym))
-                        {
-                            c = ( event.key.keysym.mod & KMOD_SHIFT
-                                  ? shift_map[event.key.keysym.sym]
-                                  : event.key.keysym.sym ) & 0x7F;
-
-                            if (c == text.text[text.index])
-                                text.index++;
-                        }
+                        start.consume (&start, event.key.keysym);
+                        exit.consume (&exit, event.key.keysym);
                 }
             }
         }
 
-        if (text.index == strnlen (text.text, MAX_TEXT_LENGTH))
+        /* Logic */
+        if (start.complete (&start))
+            return 1;
+        if (exit.complete (&exit))
             return 0;
 
-        /* Logic */
 
         /* Rendering */
         SDL_SetRenderDrawColor (renderer, 0, 0, 0, 255);
         SDL_RenderClear (renderer);
 
-        Text_render (renderer, &text);
+        title.render (&title);
+        start.render (&start);
+        exit.render (&exit);
 
         SDL_RenderPresent (renderer);
 
@@ -92,7 +101,7 @@ int main_menu (SDL_Renderer *renderer)
         }
     }
 
-    SDL_FreeTexture (characters_bright_texture);
+    SDL_FreeTexture (character_panels_texture);
     SDL_FreeTexture (characters_dim_texture);
 
     return 0;
