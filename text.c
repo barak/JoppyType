@@ -22,7 +22,7 @@ void Text_render (Text *text)
         source_rect.h = 32;
 
         /* Calculate destination */
-        dest_rect.x = text->x_position + 64 * i;
+        dest_rect.x = text->x_position + (64 + 4) * i;
         dest_rect.y = text->y_position;
         dest_rect.w =  64;
         dest_rect.h = 128;
