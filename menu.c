@@ -22,17 +22,10 @@ int main_menu (SDL_Renderer *renderer)
     SDL_Event event;
     Timer timer = Timer_new ();
 
-    SDL_Surface *background_surface = loadImage ("./Media/Greenmaze.png");
-    SDL_Texture *background_texture = SDL_CreateTextureFromSurface (renderer, background_surface);
-    SDL_FreeSurface (background_surface);
-
-    SDL_Surface *character_tiles_surface = loadImage ("./Media/Terminus_bold_tiles_b.png");
-    SDL_Texture *character_tiles_texture = SDL_CreateTextureFromSurface (renderer, character_tiles_surface);
-    SDL_FreeSurface (character_tiles_surface);
-
-    SDL_Surface *characters_dim = loadImage ("./Media/Terminus_bold_tiles_b_trans.png");
-    SDL_Texture *characters_dim_texture = SDL_CreateTextureFromSurface (renderer, characters_dim);
-    SDL_FreeSurface (characters_dim);
+    /* Load textures */
+    SDL_Texture *background_texture      = loadTexture (renderer, "./Media/Greenmaze.png");
+    SDL_Texture *character_tiles_texture = loadTexture (renderer,"./Media/Terminus_bold_tiles_b.png");
+    SDL_Texture *characters_dim_texture  = loadTexture (renderer,"./Media/Terminus_bold_tiles_b_trans.png");
 
     Text title = Text_new (renderer, "Welcome to JoppyType!");
     title.post_index =  character_tiles_texture;
@@ -109,7 +102,7 @@ int main_menu (SDL_Renderer *renderer)
 
     SDL_FreeTexture (character_tiles_texture);
     SDL_FreeTexture (characters_dim_texture);
-    SDL_FreeTexture (background_surface);
+    SDL_FreeTexture (background_texture);
 
     return 0;
 }
