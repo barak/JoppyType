@@ -12,43 +12,31 @@
 #include "helpers.h"
 #include "text.h"
 
-/* main_menu
- *
- * The interactive main menu for the game.
- * Will return the next state to enter.
- */
-int main_menu (SDL_Renderer *renderer)
+int run_game (SDL_Renderer *renderer)
 {
     SDL_Event event;
     Timer timer = Timer_new ();
+    char score_string[MAX_TEXT_LENGTH] = {'\0'};
+    int score_int = 0;
 
     /* Load textures */
     SDL_Texture *background_texture      = loadTexture (renderer, "./Media/Greenmaze.png");
     SDL_Texture *character_tiles_texture = loadTexture (renderer,"./Media/Terminus_bold_tiles_b.png");
     SDL_Texture *characters_dim_texture  = loadTexture (renderer,"./Media/Terminus_bold_tiles_b_trans.png");
 
-    Text title = Text_new (renderer, "Welcome to JoppyType!");
-    title.scale = 4;
-    title.post_index =  character_tiles_texture;
-    title.x_position = 120;
-    title.y_position = 120;
-    title.animate = &Text_animate;
+    Text score = Text_new (renderer, score_string);
+    score.post_index =  character_tiles_texture;
+    score.scale = 2;
+    score.x_position = 10;
+    score.y_position = 10;
 
-    Text start = Text_new (renderer, "Start");
-    start.scale = 4;
-    start.pre_index  =  characters_dim_texture;
-    start.post_index =  character_tiles_texture;
-    start.x_position = 320;
-    start.y_position = 440;
-    start.animate = &Text_animate;
-
-    Text exit = Text_new (renderer, "Exit");
-    exit.scale = 4;
-    exit.pre_index  =  characters_dim_texture;
-    exit.post_index =  character_tiles_texture;
-    exit.x_position = 320;
-    exit.y_position = 600;
-    exit.animate = &Text_animate;
+    Text text = Text_new (renderer, "This is gameplay.");
+    text.scale = 4;
+    text.pre_index  =  characters_dim_texture;
+    text.post_index =  character_tiles_texture;
+    text.x_position = 320;
+    text.y_position = 600;
+    text.animate = &Text_animate;
 
 
     for (;;)
@@ -71,16 +59,14 @@ int main_menu (SDL_Renderer *renderer)
                         return 0;
                         break;
                     default:
-                        start.consume (&start, event.key.keysym);
-                        exit.consume (&exit, event.key.keysym);
+                        if (text.consume (&text, event.key.keysym))
+                            score_int++;
                 }
             }
         }
 
         /* Logic */
-        if (start.complete (&start))
-            return 1;
-        if (exit.complete (&exit))
+        if (text.complete (&text))
             return 0;
 
 
@@ -90,9 +76,10 @@ int main_menu (SDL_Renderer *renderer)
 
         SDL_RenderCopy (renderer, background_texture, NULL, NULL);
 
-        title.render (&title);
-        start.render (&start);
-        exit.render (&exit);
+        text.render (&text);
+
+        snprintf (score_string, MAX_TEXT_LENGTH, "Score: %d.\n", score_int);
+        score.render (&score);
 
         SDL_RenderPresent (renderer);
 

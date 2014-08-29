@@ -22,10 +22,10 @@ void Text_render (Text *text)
         source_rect.h = 32;
 
         /* Calculate destination */
-        dest_rect.x = text->x_position + (64 + 4) * i;
+        dest_rect.x = text->x_position + (16 + 1) * i * text->scale;
         dest_rect.y = text->y_position;
-        dest_rect.w =  64;
-        dest_rect.h = 128;
+        dest_rect.w = 16 * text->scale;
+        dest_rect.h = 32 * text->scale;;
 
         if (text->animate)
             text->animate(&dest_rect);
@@ -82,7 +82,8 @@ void Text_animate (SDL_Rect *dest_rect)
 
 Text Text_new (SDL_Renderer *renderer, char *string)
 {
-    Text text = { string, 0, 0, NULL, NULL, renderer,
+    Text text = { string,
+                  1, 0, 0, NULL, NULL, renderer,
                   0,
                   NULL, &Text_render, &Text_consume, &Text_complete
                 };

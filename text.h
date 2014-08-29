@@ -4,6 +4,7 @@ typedef struct Text_struct {
 
     /* Configuration */
     char *text;
+    unsigned int scale;
     unsigned int x_position;
     unsigned int y_position;
 

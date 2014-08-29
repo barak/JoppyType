@@ -7,9 +7,12 @@
 #define FRAME_LIMIT 60
 
 extern int main_menu (SDL_Renderer *renderer);
+extern int run_game (SDL_Renderer *renderer);
 
 int main (int argc, char**argv)
 {
+    int running = 1;
+
     /* Initialize things */
     if (SDL_Init (SDL_INIT_EVERYTHING) == -1)
     {
@@ -35,9 +38,17 @@ int main (int argc, char**argv)
     SDL_RenderPresent (renderer);
 
     /* Enter the main menu */
-    while (main_menu (renderer))
+    while (running)
     {
-        /* When there are multiple options, a switch statement could live in here... */
+        switch (main_menu (renderer))
+        {
+            case 0: /* Exit */
+                running = 0;
+                break;
+            case 1: /* Start */
+                run_game (renderer);
+                break;
+        }
     }
 
     SDL_DestroyRenderer (renderer);

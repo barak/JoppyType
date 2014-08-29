@@ -1,3 +1,8 @@
 Ideas:
 
  - Higher resolution background image, then have it scroll around.
+ - Text.length - Calculate pixel length of a string to allow allignment (left, centre, right, etc).
+ - Function to convert long text into multiple Text elements. They can scroll as you complete lines..
+ - More advanced scoring - Faster gives higher score than slower.
+ - Need to be able to calculate how many characters will fit on a line, to allow lines to be split correctly.. Monitor size may need to be detected.
+ - Combo -> multipliers
