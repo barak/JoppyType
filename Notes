@@ -6,3 +6,8 @@ Ideas:
  - More advanced scoring - Faster gives higher score than slower.
  - Need to be able to calculate how many characters will fit on a line, to allow lines to be split correctly.. Monitor size may need to be detected.
  - Combo -> multipliers
+
+Backlog:
+
+ - Deal with resolution varience. 80 / 72 width.
+ - Read text files.

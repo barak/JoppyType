@@ -5,17 +5,16 @@
 #include "SDL2/SDL_ttf.h"
 #include "SDL2/SDL_image.h"
 
-#include "timer.h"
+#include "jt_helpers.h"
+#include "jt_text.h"
 
 #define FRAME_LIMIT 60
 
-#include "helpers.h"
-#include "text.h"
-
-int run_game (SDL_Renderer *renderer)
+int jt_run_game (SDL_Renderer *renderer)
 {
     SDL_Event event;
-    Timer timer = Timer_new ();
+    uint32_t frame_start;
+    uint32_t frame_stop;
     char score_string[MAX_TEXT_LENGTH] = {'\0'};
     int score_int = 0;
 
@@ -24,24 +23,19 @@ int run_game (SDL_Renderer *renderer)
     SDL_Texture *character_tiles_texture = loadTexture (renderer,"./Media/Terminus_bold_tiles_b.png");
     SDL_Texture *characters_dim_texture  = loadTexture (renderer,"./Media/Terminus_bold_tiles_b_trans.png");
 
-    Text score = Text_new (renderer, score_string);
-    score.post_index =  character_tiles_texture;
-    score.scale = 2;
-    score.x_position = 10;
-    score.y_position = 10;
+    jt_text score = { score_string, 0, 2,
+                      10, 10,
+                      character_tiles_texture, character_tiles_texture,
+                      0 };
 
-    Text text = Text_new (renderer, "This is gameplay.");
-    text.scale = 4;
-    text.pre_index  =  characters_dim_texture;
-    text.post_index =  character_tiles_texture;
-    text.x_position = 320;
-    text.y_position = 600;
-    text.animate = &Text_animate;
-
+    jt_text text = { "This is gameplay", 16, 4,
+                      320, 600,
+                      characters_dim_texture, character_tiles_texture,
+                      0 };
 
     for (;;)
     {
-        timer.start(&timer);
+        frame_start = SDL_GetTicks ();
 
         /* Process input */
         while (SDL_PollEvent (&event))
@@ -59,14 +53,15 @@ int run_game (SDL_Renderer *renderer)
                         return 0;
                         break;
                     default:
-                        if (text.consume (&text, event.key.keysym))
+                        if (jt_text_consume (&text, event.key.keysym))
                             score_int++;
+                        break;
                 }
             }
         }
 
         /* Logic */
-        if (text.complete (&text))
+        if (text.index == text.length)
             return 0;
 
 
@@ -76,23 +71,24 @@ int run_game (SDL_Renderer *renderer)
 
         SDL_RenderCopy (renderer, background_texture, NULL, NULL);
 
-        text.render (&text);
+        jt_text_render (&text, renderer);
 
         snprintf (score_string, MAX_TEXT_LENGTH, "Score: %d.\n", score_int);
-        score.render (&score);
+        jt_text_render (&score, renderer);
 
         SDL_RenderPresent (renderer);
 
         /* Frame limiting */
-        if (timer.time_passed (&timer) < (1000 / FRAME_LIMIT))
+        frame_stop = SDL_GetTicks ();
+        if ((frame_stop - frame_start) < (1000 / FRAME_LIMIT))
         {
-            SDL_Delay (1000 / FRAME_LIMIT - timer.time_passed (&timer));
+            SDL_Delay (1000 / FRAME_LIMIT - (frame_stop - frame_start));
         }
     }
 
-    SDL_FreeTexture (character_tiles_texture);
-    SDL_FreeTexture (characters_dim_texture);
-    SDL_FreeTexture (background_texture);
+    SDL_DestroyTexture (character_tiles_texture);
+    SDL_DestroyTexture (characters_dim_texture);
+    SDL_DestroyTexture (background_texture);
 
     return 0;
 }

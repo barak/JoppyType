@@ -5,55 +5,45 @@
 #include "SDL2/SDL_ttf.h"
 #include "SDL2/SDL_image.h"
 
-#include "timer.h"
-
 #define FRAME_LIMIT 60
 
-#include "helpers.h"
-#include "text.h"
+#include "jt_helpers.h"
+#include "jt_text.h"
 
 /* main_menu
  *
  * The interactive main menu for the game.
  * Will return the next state to enter.
  */
-int main_menu (SDL_Renderer *renderer)
+int jt_main_menu (SDL_Renderer *renderer)
 {
     SDL_Event event;
-    Timer timer = Timer_new ();
+    uint32_t frame_start;
+    uint32_t frame_stop;
 
     /* Load textures */
     SDL_Texture *background_texture      = loadTexture (renderer, "./Media/Greenmaze.png");
     SDL_Texture *character_tiles_texture = loadTexture (renderer,"./Media/Terminus_bold_tiles_b.png");
     SDL_Texture *characters_dim_texture  = loadTexture (renderer,"./Media/Terminus_bold_tiles_b_trans.png");
 
-    Text title = Text_new (renderer, "Welcome to JoppyType!");
-    title.scale = 4;
-    title.post_index =  character_tiles_texture;
-    title.x_position = 120;
-    title.y_position = 120;
-    title.animate = &Text_animate;
+    jt_text title = { "Welcome to JoppyType!", 21, 4,
+                      120, 120,
+                      character_tiles_texture, character_tiles_texture,
+                      0 }; 
 
-    Text start = Text_new (renderer, "Start");
-    start.scale = 4;
-    start.pre_index  =  characters_dim_texture;
-    start.post_index =  character_tiles_texture;
-    start.x_position = 320;
-    start.y_position = 440;
-    start.animate = &Text_animate;
-
-    Text exit = Text_new (renderer, "Exit");
-    exit.scale = 4;
-    exit.pre_index  =  characters_dim_texture;
-    exit.post_index =  character_tiles_texture;
-    exit.x_position = 320;
-    exit.y_position = 600;
-    exit.animate = &Text_animate;
-
+    jt_text start = { "Start", 5, 4,
+                      320, 440,
+                      characters_dim_texture, character_tiles_texture,
+                      0 };
+    
+    jt_text exit = { "Exit", 4, 4,
+                      320, 660,
+                      characters_dim_texture, character_tiles_texture,
+                      0 };
 
     for (;;)
     {
-        timer.start(&timer);
+        frame_start = SDL_GetTicks ();
 
         /* Process input */
         while (SDL_PollEvent (&event))
@@ -71,16 +61,17 @@ int main_menu (SDL_Renderer *renderer)
                         return 0;
                         break;
                     default:
-                        start.consume (&start, event.key.keysym);
-                        exit.consume (&exit, event.key.keysym);
+                        jt_text_consume (&start, event.key.keysym);
+                        jt_text_consume (&exit, event.key.keysym);
+                        break;
                 }
             }
         }
 
         /* Logic */
-        if (start.complete (&start))
+        if (start.index == start.length)
             return 1;
-        if (exit.complete (&exit))
+        if (exit.index == exit.length)
             return 0;
 
 
@@ -90,22 +81,23 @@ int main_menu (SDL_Renderer *renderer)
 
         SDL_RenderCopy (renderer, background_texture, NULL, NULL);
 
-        title.render (&title);
-        start.render (&start);
-        exit.render (&exit);
+        jt_text_render (&title, renderer);
+        jt_text_render (&start, renderer);
+        jt_text_render (&exit,  renderer);
 
         SDL_RenderPresent (renderer);
 
         /* Frame limiting */
-        if (timer.time_passed (&timer) < (1000 / FRAME_LIMIT))
+        frame_stop = SDL_GetTicks ();
+        if ((frame_stop - frame_start) < (1000 / FRAME_LIMIT))
         {
-            SDL_Delay (1000 / FRAME_LIMIT - timer.time_passed (&timer));
+            SDL_Delay (1000 / FRAME_LIMIT - (frame_stop - frame_start));
         }
     }
 
-    SDL_FreeTexture (character_tiles_texture);
-    SDL_FreeTexture (characters_dim_texture);
-    SDL_FreeTexture (background_texture);
+    SDL_DestroyTexture (character_tiles_texture);
+    SDL_DestroyTexture (characters_dim_texture);
+    SDL_DestroyTexture (background_texture);
 
     return 0;
 }

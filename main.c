@@ -6,8 +6,10 @@
 
 #define FRAME_LIMIT 60
 
-extern int main_menu (SDL_Renderer *renderer);
-extern int run_game (SDL_Renderer *renderer);
+// JT_COMPILE_DATE
+
+extern int jt_main_menu (SDL_Renderer *renderer);
+extern int jt_run_game (SDL_Renderer *renderer);
 
 int main (int argc, char**argv)
 {
@@ -40,13 +42,13 @@ int main (int argc, char**argv)
     /* Enter the main menu */
     while (running)
     {
-        switch (main_menu (renderer))
+        switch (jt_main_menu (renderer))
         {
             case 0: /* Exit */
                 running = 0;
                 break;
             case 1: /* Start */
-                run_game (renderer);
+                jt_run_game (renderer);
                 break;
         }
     }
