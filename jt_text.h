@@ -5,9 +5,9 @@ typedef struct jt_text_struct {
     /* Configuration */
     char *text;
     uint32_t length;
-    /* TODO: Change definition of scale to represent the number of
-     * characters that we want to fit across the screen */
-    uint32_t scale;
+    /* Size represents the amount of text that should fit across the
+     * screen. A larger value for scale results in a smaller font size */
+    uint32_t size;
     /* Position is stored as a value between 0.0 and 1.0.
      * 0.0 represents left-aligned text.
      * 0.5 represents centred text.

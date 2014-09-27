@@ -27,6 +27,7 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
     uint32_t bottom_shift;
     uint32_t x_start;
     uint32_t y_start;
+    uint32_t scale;
 
     int output_width;
     int output_height;
@@ -36,17 +37,22 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
 
     /* Calculate text destination area */
     SDL_GetRendererOutputSize (renderer, &output_width, &output_height);
+    border_width = output_width * JT_BORDER_X;
+    border_height = output_height * JT_BORDER_Y;
+
+    /* Select font size */
+    scale = (output_width - border_width * 2) / (text->size * 17 - 1);
+    if (scale < 1)
+        scale = 1;
 
     /* X Axis */
-    text_width = 17 * text->scale * text->length - text->scale;
-    border_width = output_width * JT_BORDER_X;
+    text_width = 17 * scale * text->length - scale;
     left_start = border_width;
     right_shift = output_width - border_width * 2 - text_width;
     x_start = left_start + text->x_position * right_shift;
 
     /* Y Axis */
-    text_height = 32 * text->scale;
-    border_height = output_height * JT_BORDER_Y;
+    text_height = 32 * scale;
     top_start = border_height;
     bottom_shift = output_height - border_height * 2 - text_height;
     y_start = top_start + text->y_position * bottom_shift;
@@ -60,10 +66,10 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
         source_rect.h = 32;
 
         /* Calculate tile destination */
-        dest_rect.x = x_start + (16 + 1) * i * text->scale;
+        dest_rect.x = x_start + (16 + 1) * i * scale;
         dest_rect.y = y_start;
-        dest_rect.w = 16 * text->scale;
-        dest_rect.h = 32 * text->scale;;
+        dest_rect.w = 16 * scale;
+        dest_rect.h = 32 * scale;
 
         /* For now, animation is assumed. Perhaps make it optional in
          * the future */

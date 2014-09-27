@@ -23,20 +23,20 @@ int jt_main_menu (SDL_Renderer *renderer)
 
     /* Load textures */
     SDL_Texture *background_texture      = loadTexture (renderer, "./Media/Greenmaze.png");
-    SDL_Texture *character_tiles_texture = loadTexture (renderer,"./Media/Terminus_bold_tiles_b.png");
-    SDL_Texture *characters_dim_texture  = loadTexture (renderer,"./Media/Terminus_bold_tiles_b_trans.png");
+    SDL_Texture *character_tiles_texture = loadTexture (renderer, "./Media/Terminus_bold_tiles_b.png");
+    SDL_Texture *characters_dim_texture  = loadTexture (renderer, "./Media/Terminus_bold_tiles_b_trans.png");
 
-    jt_text title = { "Welcome to JoppyType!", 21, 4,
+    jt_text title = { "Welcome to JoppyType!", 21, 21,
                       0.5, 0.0,
                       character_tiles_texture, character_tiles_texture,
                       0 };
 
-    jt_text start = { "Start", 5, 4,
+    jt_text start = { "Start", 5, 21,
                       0.0, 0.5,
                       characters_dim_texture, character_tiles_texture,
                       0 };
 
-    jt_text exit = { "Exit", 4, 4,
+    jt_text exit = { "Exit", 4, 21,
                       0.0, 0.8,
                       characters_dim_texture, character_tiles_texture,
                       0 };
