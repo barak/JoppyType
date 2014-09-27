@@ -24,12 +24,12 @@ int jt_run_game (SDL_Renderer *renderer)
     SDL_Texture *characters_dim_texture  = loadTexture (renderer,"./Media/Terminus_bold_tiles_b_trans.png");
 
     jt_text score = { score_string, 0, 2,
-                      10, 10,
+                      0.0, 0.0,
                       character_tiles_texture, character_tiles_texture,
                       0 };
 
     jt_text text = { "This is gameplay", 16, 4,
-                      320, 600,
+                      0.0, 0.5,
                       characters_dim_texture, character_tiles_texture,
                       0 };
 

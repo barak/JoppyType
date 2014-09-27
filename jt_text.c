@@ -8,14 +8,48 @@
 #include "jt_shiftmap.h"
 #include "jt_text.h"
 
+/* Proportion of screen space that text covers */
+#define JT_BORDER_X  0.05
+#define JT_BORDER_Y 0.05
+
 void jt_text_render (jt_text *text, SDL_Renderer *renderer)
 {
     int i = 0;
     SDL_Rect source_rect;
     SDL_Rect dest_rect;
+    uint32_t text_width;
+    uint32_t text_height;
+    uint32_t border_width;
+    uint32_t border_height;
+    uint32_t left_start;
+    uint32_t right_shift;
+    uint32_t top_start;
+    uint32_t bottom_shift;
+    uint32_t x_start;
+    uint32_t y_start;
+
+    int output_width;
+    int output_height;
 
     if (text->text == NULL)
         return;
+
+    /* Calculate text destination area */
+    SDL_GetRendererOutputSize (renderer, &output_width, &output_height);
+
+    /* X Axis */
+    text_width = 17 * text->scale * text->length - text->scale;
+    border_width = output_width * JT_BORDER_X;
+    left_start = border_width;
+    right_shift = output_width - border_width * 2 - text_width;
+    x_start = left_start + text->x_position * right_shift;
+
+    /* Y Axis */
+    text_height = 32 * text->scale;
+    border_height = output_height * JT_BORDER_Y;
+    top_start = border_height;
+    bottom_shift = output_height - border_height * 2 - text_height;
+    y_start = top_start + text->y_position * bottom_shift;
 
     for (i = 0; text->text[i]; i++)
     {
@@ -25,9 +59,9 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
         source_rect.w = 16;
         source_rect.h = 32;
 
-        /* Calculate destination rectangle */
-        dest_rect.x = text->x_position + (16 + 1) * i * text->scale;
-        dest_rect.y = text->y_position;
+        /* Calculate tile destination */
+        dest_rect.x = x_start + (16 + 1) * i * text->scale;
+        dest_rect.y = y_start;
         dest_rect.w = 16 * text->scale;
         dest_rect.h = 32 * text->scale;;
 
@@ -72,7 +106,7 @@ int jt_text_consume (jt_text *text, SDL_Keysym keysym)
         else
             return JT_TEXT_MATCH;
     }
-    
+
     return JT_TEXT_MISMATCH;
 }
 
