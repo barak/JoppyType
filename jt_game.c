@@ -9,6 +9,15 @@
 #include "jt_text.h"
 
 #define FRAME_LIMIT 60
+/* TODO: The score is shown on the left.. How about WPM on the right? */
+/* Once the basics of text handling are complete, this should be
+ * replaced with the ability to load text from a file. */
+/* For now, 0x7F can represent \n, to avoid changing the font code and format */
+char *initial_text = "This is a sample piece of text. Type type type go the "
+                     "fingers on the keyboard. The keyboard makes a satisfying "
+                     "clack noise as the keys bottom out.\x7F"
+                     "After some more of this code is written, I think I might "
+                     "relax with a bag of chips and watch the telly for a bit.\x7F";
 
 int jt_run_game (SDL_Renderer *renderer)
 {
@@ -26,12 +35,12 @@ int jt_run_game (SDL_Renderer *renderer)
     jt_text score = { score_string, 0, 40,
                       0.0, 0.0,
                       character_tiles_texture, character_tiles_texture,
-                      0 };
+                      0, 0 };
 
-    jt_text text = { "This is gameplay", 16, 30,
-                      0.0, 0.5,
+    jt_text text = { initial_text, strlen (initial_text), 30,
+                      0.0, 0.2,
                       characters_dim_texture, character_tiles_texture,
-                      0 };
+                      0, 0 };
 
     for (;;)
     {

@@ -12,6 +12,18 @@
 #define JT_BORDER_X  0.05
 #define JT_BORDER_Y 0.05
 
+/* TODO:
+ *  - It would be nice to allow the number of characters per line to
+ *    vary and strectch to fill the screen. Using 'size' only as a
+ *    suggestion.
+ *  - Newlines need to be typable. Instead of a tile, how about having
+ *    them render as symbol-only.
+ *  - Text should be formatted correctly, not breaking lines in in
+ *    the middle of a word.
+ *  - Instead of lines just dissapearing instantly, perhaps a slow
+ *    scroll as the line is typed, and the line fading away as it
+ *    scrolls up. */
+
 void jt_text_render (jt_text *text, SDL_Renderer *renderer)
 {
     int i = 0;
@@ -31,6 +43,10 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
 
     int output_width;
     int output_height;
+
+    /* Position in tile-space */
+    uint32_t tile_x;
+    uint32_t tile_y;
 
     if (text->text == NULL)
         return;
@@ -57,7 +73,9 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
     bottom_shift = output_height - border_height * 2 - text_height;
     y_start = top_start + text->y_position * bottom_shift;
 
-    for (i = 0; text->text[i]; i++)
+    tile_x = 0;
+    tile_y = 0;
+    for (i = text->visible_index; text->text[i]; i++)
     {
         /* Select character from font */
         source_rect.x = 16 * (text->text[i] - ' ');
@@ -66,8 +84,8 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
         source_rect.h = 32;
 
         /* Calculate tile destination */
-        dest_rect.x = x_start + (16 + 1) * i * scale;
-        dest_rect.y = y_start;
+        dest_rect.x = x_start + (16 + 1) * tile_x * scale;
+        dest_rect.y = y_start + (32 + 8) * tile_y * scale;
         dest_rect.w = 16 * scale;
         dest_rect.h = 32 * scale;
 
@@ -79,6 +97,26 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
             SDL_RenderCopy (renderer, text->typed_texture, &source_rect, &dest_rect);
         else if (i >= text->index && text->untyped_texture)
             SDL_RenderCopy (renderer, text->untyped_texture, &source_rect, &dest_rect);
+
+        /* Calculate next tile positon */
+        if (text->text[i] == '\x7F')
+        {
+            tile_x = 0;
+            tile_y++;
+        }
+        else
+        {
+            tile_x++;
+            if (tile_x == text->size)
+            {
+                tile_x = 0;
+                tile_y++;
+            }
+        }
+        if (tile_x == 0 && tile_y == 1 && i < text->index)
+        {
+            text->visible_index = i + 1;
+        }
     }
 }
 
@@ -90,19 +128,28 @@ int jt_text_consume (jt_text *text, SDL_Keysym keysym)
 {
     char c = '\0';
 
+    printf ("Symbol is 0x%x.\n", keysym.sym);
+
     /* Ignore any non-ascii characters */
     if (keysym.sym >= 0x80)
        return JT_TEXT_MISMATCH;
 
-    /* Ignore any non-printable characters */
-    if (!isprint (keysym.sym))
-        return JT_TEXT_MISMATCH;
-
-    /* Populate c with the keypress */
-    if (keysym.mod & KMOD_SHIFT)
-        c = shift_map[keysym.sym];
+    if (keysym.sym == SDLK_RETURN)
+    {
+        c = '\x7F';
+    }
     else
-        c = keysym.sym;
+    {
+        /* Ignore any non-printable characters */
+        if (!isprint (keysym.sym))
+            return JT_TEXT_MISMATCH;
+
+        /* Populate c with the keypress */
+        if (keysym.mod & KMOD_SHIFT)
+            c = shift_map[keysym.sym];
+        else
+            c = keysym.sym;
+    }
 
     if (c == text->text[text->index])
     {

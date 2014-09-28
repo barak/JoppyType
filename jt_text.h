@@ -19,7 +19,8 @@ typedef struct jt_text_struct {
     SDL_Texture *untyped_texture;
 
     /* State */
-    int index;
+    uint32_t index;
+    uint32_t visible_index;
 
 } jt_text;
 

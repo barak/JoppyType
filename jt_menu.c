@@ -29,17 +29,17 @@ int jt_main_menu (SDL_Renderer *renderer)
     jt_text title = { "Welcome to JoppyType!", 21, 21,
                       0.5, 0.0,
                       character_tiles_texture, character_tiles_texture,
-                      0 };
+                      0, 0 };
 
     jt_text start = { "Start", 5, 21,
                       0.0, 0.5,
                       characters_dim_texture, character_tiles_texture,
-                      0 };
+                      0, 0 };
 
     jt_text exit = { "Exit", 4, 21,
                       0.0, 0.8,
                       characters_dim_texture, character_tiles_texture,
-                      0 };
+                      0, 0 };
 
     for (;;)
     {
