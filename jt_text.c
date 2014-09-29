@@ -16,13 +16,13 @@
  *  - It would be nice to allow the number of characters per line to
  *    vary and strectch to fill the screen. Using 'size' only as a
  *    suggestion.
- *  - Newlines need to be typable. Instead of a tile, how about having
- *    them render as symbol-only.
- *  - Text should be formatted correctly, not breaking lines in in
- *    the middle of a word.
  *  - Instead of lines just dissapearing instantly, perhaps a slow
  *    scroll as the line is typed, and the line fading away as it
  *    scrolls up. */
+int min (int a, int b)
+{
+    return a > b ? b : a;
+}
 
 void jt_text_render (jt_text *text, SDL_Renderer *renderer)
 {
@@ -47,6 +47,8 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
     /* Position in tile-space */
     uint32_t tile_x;
     uint32_t tile_y;
+    uint32_t remaining_space;
+    uint32_t word_length;
 
     if (text->text == NULL)
         return;
@@ -104,15 +106,35 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
             tile_x = 0;
             tile_y++;
         }
-        else
+        else if (text->text[i] == ' ')
         {
-            tile_x++;
-            if (tile_x == text->size)
+            /* Is there enough room for the next word? */
+            remaining_space = text->size - tile_x - 1;
+            word_length = min ( strchr (&text->text[i + 1], ' ') - &text->text[i + 1],
+                                strlen (&text->text[i + 1]));
+            if (word_length > remaining_space)
             {
                 tile_x = 0;
                 tile_y++;
             }
+            else
+            {
+                tile_x++;
+            }
         }
+        else
+        {
+            tile_x++;
+        }
+
+        /* Have we managed to run out of line? */
+        if (tile_x == text->size)
+        {
+            tile_x = 0;
+            tile_y++;
+        }
+
+        /* Scroll the text */
         if (tile_x == 0 && tile_y == 1 && i < text->index)
         {
             text->visible_index = i + 1;
@@ -127,8 +149,6 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
 int jt_text_consume (jt_text *text, SDL_Keysym keysym)
 {
     char c = '\0';
-
-    printf ("Symbol is 0x%x.\n", keysym.sym);
 
     /* Ignore any non-ascii characters */
     if (keysym.sym >= 0x80)

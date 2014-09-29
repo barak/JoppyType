@@ -82,7 +82,7 @@ int jt_run_game (SDL_Renderer *renderer)
 
         jt_text_render (&text, renderer);
 
-        snprintf (score_string, MAX_TEXT_LENGTH, "Score: %d.\n", score_int);
+        snprintf (score_string, MAX_TEXT_LENGTH, "Score: %d", score_int);
         jt_text_render (&score, renderer);
 
         SDL_RenderPresent (renderer);
