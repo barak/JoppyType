@@ -19,7 +19,7 @@
  *  - Instead of lines just dissapearing instantly, perhaps a slow
  *    scroll as the line is typed, and the line fading away as it
  *    scrolls up. */
-int min (int a, int b)
+uint32_t min (uint32_t a, uint32_t b)
 {
     return a > b ? b : a;
 }
