@@ -47,6 +47,7 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
     /* Position in tile-space */
     uint32_t tile_x;
     uint32_t tile_y;
+    uint32_t line_size;
     uint32_t remaining_space;
     uint32_t word_length;
 
@@ -62,6 +63,10 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
     scale = (output_width - border_width * 2) / (text->size * 17 - 1);
     if (scale < 1)
         scale = 1;
+
+    /* We have a goal size of text->size, but we can actually fit
+     * line_size tiles at our best font size. */
+    line_size = (output_width - border_width * 2) / (17 * scale);
 
     /* X Axis */
     text_width = 17 * scale * text->length - scale;
@@ -109,7 +114,7 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
         else if (text->text[i] == ' ')
         {
             /* Is there enough room for the next word? */
-            remaining_space = text->size - tile_x - 1;
+            remaining_space = line_size - tile_x - 1;
             word_length = min ( strchr (&text->text[i + 1], ' ') - &text->text[i + 1],
                                 strlen (&text->text[i + 1]));
             if (word_length > remaining_space)
@@ -128,7 +133,7 @@ void jt_text_render (jt_text *text, SDL_Renderer *renderer)
         }
 
         /* Have we managed to run out of line? */
-        if (tile_x == text->size)
+        if (tile_x == line_size)
         {
             tile_x = 0;
             tile_y++;
